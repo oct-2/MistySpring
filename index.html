@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>雾之春小测试</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Microsoft Yahei",system-ui,-apple-system;}
+
+body{
+  background:#12141c;
+  color:#e8e8ef;
+  max-width:680px;
+  margin:0 auto;
+  padding:24px 16px;
+  min-height:100vh;
+  transition: background 0.7s ease;
+}
+
+body.res-gov{
+  background:#171b36;
+}
+body.res-shadow{
+  background:#0b0c0f;
+}
+body.res-life{
+  background:#142416;
+}
+body.res-steel{
+  background:#230d10;
+}
+
+/* ===== 开幕欢迎页 ===== */
+.splash-wrap{
+  position:fixed;
+  inset:0;
+  background:#12141c;
+  z-index:99;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:32px 24px;
+  opacity:1;
+  transition:opacity 0.6s ease;
+}
+.splash-wrap.fadeout{
+  opacity:0;
+  pointer-events:none;
+}
+.splash-text{
+  max-width:580px;
+  font-size:17px;
+  line-height:2;
+  text-align:center;
+  min-height:140px;
+}
+.splash-caret{
+  display:inline-block;
+  width:7px;
+  margin-left:2px;
+  background:#949cb8;
+  animation:blink 0.8s infinite;
+}
+#startBtn{
+  margin-top:36px;
+  padding:14px 36px;
+  background:#5865d8;
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  cursor:pointer;
+  opacity:0;
+  transition:opacity 0.5s;
+}
+#startBtn.show-btn{
+  opacity:1;
+}
+#startBtn:hover{
+  background:#4752bc;
+}
+
+.wrap{padding:8px;display:none;}
+.wrap.show-wrap{
+  display:block;
+}
+
+.title-block{
+  text-align:center;
+  margin-bottom:32px;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.title-block.hidden-title{
+  opacity:0;
+  pointer-events:none;
+  transform: translateY(-12px);
+}
+.title-block h1{font-size:24px;margin-bottom:12px;color:#cad2ff;}
+.title-block p{opacity:0.75;line-height:1.6;font-size:15px;}
+
+.question{
+  display:none;
+  opacity:0;
+  transform:translateY(12px);
+  transition:opacity 0.35s ease, transform 0.35s ease;
+  margin-bottom:20px;
+}
+.question.active{
+  display:block;
+  opacity:1;
+  transform:translateY(0);
+}
+
+.q-text{
+  font-size:16px;
+  line-height:1.7;
+  margin-bottom:18px;
+  min-height:3em;
+  white-space:pre-wrap;
+  word-wrap:break-word;
+}
+
+.caret{
+  display:inline-block;
+  width:7px;
+  margin-left:2px;
+  background:#949cb8;
+  animation:blink 0.8s infinite;
+}
+@keyframes blink{
+  50%{opacity:0;}
+}
+
+.opt-btn{
+  width:100%;
+  text-align:left;
+  padding:14px 16px;
+  margin:10px 0;
+  background:#222638;
+  border:1px solid #373c54;
+  color:#e8e8ef;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:15px;
+  transition:0.2s;
+}
+.opt-btn:hover{background:#2d324a;border-color:#50587c;}
+
+.result-page{
+  display:none;
+  margin-top:40px;
+  text-align:center;
+  padding:28px 24px;
+  border-radius:18px;
+  position:relative;
+  overflow:hidden;
+}
+.result-page h2{
+  font-size:26px;
+  margin-bottom:16px;
+  position:relative;
+  z-index:2;
+}
+.res-desc{
+  margin:24px 0;
+  font-size:16px;
+  line-height:1.8;
+  position:relative;
+  z-index:2;
+  white-space:pre-wrap;
+}
+.restart-btn{
+  padding:12px 28px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+  position:relative;
+  z-index:2;
+}
+.tip{margin-top:24px;font-size:13px;opacity:0.65;position:relative;z-index:2;}
+
+/* 秩序政府 紫蓝色 */
+.result-gov{
+  background:
+    radial-gradient(circle at top left, rgba(120,110,255,0.35), transparent 45%),
+    radial-gradient(circle at bottom right, rgba(74,134,255,0.25), transparent 45%),
+    linear-gradient(160deg, #1a1f3a, #24305e);
+  border:1px solid rgba(138,148,255,0.45);
+  box-shadow:
+    0 0 0 1px rgba(138,148,255,0.25) inset,
+    0 18px 45px rgba(60,80,180,0.35);
+  color:#eef2ff;
+}
+.result-gov h2{color:#d9deff;text-shadow:0 0 18px rgba(138,148,255,0.5);}
+.result-gov .restart-btn{background:#5b6cdf;color:#fff;}
+.result-gov .restart-btn:hover{background:#4a59c4;}
+
+.result-gov.show{animation:govShow 1s ease forwards;}
+@keyframes govShow{
+  0%{opacity:0;transform:translateY(24px) scale(0.96);box-shadow:0 0 0 rgba(138,148,255,0);}
+  60%{opacity:1;transform:translateY(-4px) scale(1.01);}
+  100%{opacity:1;transform:translateY(0) scale(1);}
+}
+
+.result-gov::before{
+  content:"";
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(180,190,255,0.25), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(90,120,255,0.18), transparent 50%);
+  opacity:0;
+  animation:govLight 2.4s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes govLight{
+  from{opacity:0.35;}
+  to{opacity:0.75;}
+}
+
+/* 暗影行会 黑白 */
+.result-shadow{
+  background:
+    radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 40%),
+    linear-gradient(160deg, #0f1014, #1c1d22);
+  border:1px solid rgba(255,255,255,0.18);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08) inset,
+    0 18px 45px rgba(0,0,0,0.5);
+  color:#f1f1f3;
+}
+.result-shadow h2{color:#ffffff;text-shadow:0 0 14px rgba(255,255,255,0.25);letter-spacing:2px;}
+.result-shadow .restart-btn{background:#2a2c33;color:#fff;border:1px solid #4a4c54;}
+.result-shadow .restart-btn:hover{background:#3a3c44;}
+
+.result-shadow.show{animation:shadowShow 1.1s ease forwards;}
+@keyframes shadowShow{
+  0%{opacity:0;filter:brightness(0.4) contrast(1.6);transform:translateY(18px);}
+  30%{opacity:0.55;filter:brightness(1.1) contrast(1.2);}
+  60%{opacity:0.85;filter:brightness(0.95) contrast(1.05);}
+  100%{opacity:1;filter:brightness(1) contrast(1);transform:translateY(0);}
+}
+
+.result-shadow::before{
+  content:"";
+  position:absolute;inset:0;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size:3px 3px;
+  opacity:0.4;
+  pointer-events:none;
+}
+
+/* 生命织缕 金绿 */
+.result-life{
+  background:
+    radial-gradient(circle at top left, rgba(210,255,130,0.3), transparent 45%),
+    radial-gradient(circle at bottom right, rgba(255,220,110,0.28), transparent 45%),
+    linear-gradient(160deg, #172a18, #2f4a24);
+  border:1px solid rgba(195,255,135,0.4);
+  box-shadow:
+    0 0 0 1px rgba(195,255,135,0.25) inset,
+    0 18px 45px rgba(80,140,60,0.35);
+  color:#f3ffe2;
+}
+.result-life h2{color:#e4ffb7;text-shadow:0 0 18px rgba(195,255,135,0.45);}
+.result-life .restart-btn{background:#7da844;color:#fff;}
+.result-life .restart-btn:hover{background:#6b9239;}
+
+.result-life.show{animation:lifeShow 1.2s ease forwards;}
+@keyframes lifeShow{
+  0%{opacity:0;transform:scale(0.85) translateY(20px);filter:blur(6px);}
+  100%{opacity:1;transform:scale(1) translateY(0);filter:blur(0);}
+}
+
+.life-particle{
+  position:absolute;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,230,140,0.9), rgba(195,255,135,0.4));
+  box-shadow:0 0 10px rgba(255,230,140,0.6);
+  pointer-events:none;
+  opacity:0;
+  animation:lifeParticle 2.6s ease-out infinite;
+}
+@keyframes lifeParticle{
+  0%{transform:translate(0,0) scale(0.4);opacity:0;}
+  30%{opacity:1;}
+  100%{transform:translate(30px,-90px) scale(1);opacity:0;}
+}
+
+/* 钢铁圣所 红白 */
+.result-steel{
+  background:
+    radial-gradient(circle at top right, rgba(255,90,90,0.3), transparent 45%),
+    linear-gradient(160deg, #2a0f12, #5c1f25);
+  border:1px solid rgba(255,180,180,0.4);
+  box-shadow:
+    0 0 0 1px rgba(255,220,220,0.2) inset,
+    0 18px 45px rgba(180,40,40,0.45);
+  color:#fff1f1;
+}
+.result-steel h2{color:#ffffff;text-shadow:0 0 16px rgba(255,110,110,0.5);letter-spacing:2px;}
+.result-steel .restart-btn{background:#c0392b;color:#fff;}
+.result-steel .restart-btn:hover{background:#a22e22;}
+
+.result-steel.show{animation:steelShow 1s ease forwards;}
+@keyframes steelShow{
+  0%{opacity:0;transform:translateY(28px) scaleX(0.9);}
+  60%{opacity:1;transform:translateY(-6px) scaleX(1.02);}
+  100%{opacity:1;transform:translateY(0) scaleX(1);}
+}
+
+.result-steel::after{
+  content:"";
+  position:absolute;
+  top:0;left:-70%;
+  width:40%;height:100%;
+  background:linear-gradient(120deg, transparent, rgba(255,255,255,0.18), transparent);
+  transform:skewX(-20deg);
+  animation:steelSweep 2.2s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes steelSweep{
+  0%{left:-70%;}
+  60%{left:130%;}
+  100%{left:130%;}
+}
+</style>
+</head>
+<body>
+<!-- 开幕全屏页 -->
+<div class="splash-wrap" id="splashWrap">
+  <div class="splash-text" id="splashText"></div>
+  <button id="startBtn">开始测试</button>
+</div>
+
+<div class="wrap" id="mainWrap">
+  <div class="title-block" id="titleBlock">
+    <h1>雾之春小测试</h1>
+    <p>测试仅供娱乐，与企内阵营选择无关。</p>
+  </div>
+
+  <div id="quiz-container"></div>
+
+  <div class="result-page" id="resultWrap">
+    <h2 id="resultHeading">你的测试结果</h2>
+    <div class="res-desc" id="resultText"></div>
+    <button class="restart-btn" onclick="restartQuiz()">重新测试</button>
+    <div class="tip">本测试仅供娱乐</div>
+  </div>
+</div>
+
+<script>
+// 开幕文案
+const splashContent = `本测试为想要在温特兰考公或入职三大热门公司的人员提供，请仔细阅读题目，并选出最适合你的选项。\n耐心感受脚下城市的呼吸，你将会在此地找到最适合自己的位置，成为一颗完美契合的宝石。`;
+
+let score = {
+  gov:0,
+  shadow:0,
+  steel:0,
+  life:0
+};
+
+const questionList = [
+  {
+    q:"1.请选择符合自己的立场",
+    options:[
+      {txt:"A.守序", points:{gov:10}},
+      {txt:"B.中立", points:{shadow:10,steel:10}},
+      {txt:"C.混乱", points:{life:10}}
+    ]
+  },
+  {
+    q:"2.你认为世人为何拥有理想？",
+    options:[
+      {txt:"A.为了更美好安稳的生活", points:{gov:5}},
+      {txt:"B.为了开发自己的才能", points:{life:5}},
+      {txt:"C.为了社会的发展和进步", points:{steel:5}},
+      {txt:"D.为了找到好工作赚大钱", points:{shadow:5}}
+    ]
+  },
+  {
+    q:"3.你认为世界尽头是一副怎样的光景？",
+    options:[
+      {txt:"A.虚无，一场白噪音", points:{shadow:10}},
+      {txt:"B.宁静，一片星空", points:{gov:10}},
+      {txt:"C.混乱，难以直视", points:{life:10}},
+      {txt:"D.世界根本没有尽头", points:{steel:10}}
+    ]
+  },
+  {
+    q:"4.你做了一场噩梦，回忆起来...是什么样的呢？",
+    options:[
+      {txt:"A.惊心动魄的追逐战", points:{gov:5}},
+      {txt:"B.烧脑刺激的谋杀案", points:{shadow:5}},
+      {txt:"C.无止境的向下坠落", points:{steel:5}},
+      {txt:"D.反复揉搓一张白纸", points:{life:5}}
+    ]
+  },
+  {
+    q:"5.你会为了目的而不择手段吗？",
+    options:[
+      {txt:"A.会", points:{shadow:10,life:10}},
+      {txt:"B.不会", points:{gov:10,steel:10}}
+    ]
+  },
+  {
+    q:"6：传说中的电车难题就在你面前...",
+    options:[
+      {txt:"A：拉下拉杆，我认为牺牲少数保全更多人是可以理解的", points:{steel:10}},
+      {txt:"B：不拉拉杆。无论如何，我无法承担害死那一个人导致的代价。", points:{gov:10}},
+      {txt:"C：看看两边轨道绑的是谁，有没有自己在意的人，再决定拉不拉拉杆", points:{shadow:10}},
+      {txt:"D：这还说啥了？疯狂摇摆！", points:{life:10}}
+    ]
+  },
+  {
+    q:"7：如果要用一首歌来代表你，会是什么样的歌？",
+    options:[
+      {txt:"A：符合大众口味的现代流行乐", points:{gov:2}},
+      {txt:"B：rock or funk！还有谁想感受节奏！？", points:{life:2}},
+      {txt:"C：古典音乐，优雅永不过时", points:{steel:2}},
+      {txt:"D：不如来一首即兴的爵士", points:{shadow:2}}
+    ]
+  },
+  {
+    q:"8.请在下列四组词语中选择你最喜欢的一组",
+    options:[
+      {txt:"A.幼鹿，晨星，巴别塔", points:{life:5}},
+      {txt:"B.电子眼，烈焰，真理", points:{steel:5}},
+      {txt:"C.黎明，新月，悼亡诗", points:{gov:5}},
+      {txt:"D.不秋草，高塔，孤品", points:{shadow:5}}
+    ]
+  },
+  {
+    q:"9.下列四个句子你最喜欢哪一个？",
+    options:[
+      {txt:"A.夜下的骨头咯吱作响，浇浇水，我的进化只差阳光。", points:{life:10}},
+      {txt:"B.如此折磨的苦差事，要走下去的我也是没心没肺，苦冷的瞎子。", points:{shadow:10}},
+      {txt:"C.愿今日的我们永存于心。", points:{gov:10}},
+      {txt:"D.信念与坚韧是绝境中夺目的火焰，锤炼至此刻，铁骨最终击碎了钻石。", points:{steel:10}}
+    ]
+  },
+  {
+    q:"10：穿越西红柿小说之你是哪种主角？",
+    options:[
+      {txt:"A：重生归来，这一次我要一雪前耻", points:{life:5}},
+      {txt:"B：穿越古代种土豆，养活万千百姓，顺便建功立业", points:{gov:5}},
+      {txt:"C：神豪系统之每天获得一万亿", points:{shadow:5}},
+      {txt:"D：穿越80年代，带领华国科研走向世界巅峰", points:{steel:5}}
+    ]
+  },
+  {
+    q:"11.今晚，月亮突然消失了，你认为它消失的原因？",
+    options:[
+      {txt:"A.月亮逃班去旅行了", points:{life:10}},
+      {txt:"B.云层太厚遮住了月亮", points:{steel:10}},
+      {txt:"C.城市的繁华让我们看不到月亮", points:{gov:10}},
+      {txt:"D.反正和我没关系不是我干的", points:{shadow:10}}
+    ]
+  },
+  {
+    q:"12.你的名字对你意味着什么？",
+    options:[
+      {txt:"A.它承载了我的故事和经历", points:{shadow:10}},
+      {txt:"B.它是标在名片上的敲门砖", points:{gov:10}},
+      {txt:"C.没有它我也会有其它名号", points:{life:10}},
+      {txt:"D.没有它就没人知道我的成就", points:{steel:10}}
+    ]
+  },
+  {
+    isBranch:true,
+    q:"已完成世界观部分题目。\n下面还有3道与企划无关的娱乐向勇者题目，你想要？",
+    options:[]
+  },
+  {
+    q:"13：嗨，亲爱的勇者，欢迎来到转生神殿，我是这个世界的女神。\n我们世界因为一些众所周知的原因，啊，也就是打不过魔王…（小声）\n所以，我从异世界召唤了你这位伟大的勇者来拯救我们的世界！\n未来的勇者，你有什么问题想要问我吗？",
+    options:[
+      {txt:"A：咱们打败了魔王之后有什么奖励吗？能不能实现愿望？包不包吃，包不包住，有没有五险一金？有没有过人的待遇？", points:{gov:2}},
+      {txt:"B：这位转生女神，你看人家轻小说勇者都有一大群后宫的，你能不能进我后宫啊？", points:{shadow:2}},
+      {txt:"C：咱们都异世界了，学到的什么炼金啊魔法啊异世界科技啊能不能给我背回去？", points:{steel:2}},
+      {txt:"D：美丽的女神大人啊，请赐予我无敌的外挂吧！我看什么无限魔力无限血量超级智慧过人号召力而且所有看到我的人都会爱上我就挺好的。我要成为这个世界的神！", points:{life:2}}
+    ]
+  },
+  {
+    q:"14：转生女神真诚的注视着你的眼睛。\n“其实我们转生神殿召唤你已经消耗了全部的能量……总之，你先去当勇者吧！\n回来一切都好说！\n不过我用转生女神的名义发誓，不管你成功与否，如果你实在不想待在这个世界，我会在三个月后把你送回去的！”\n说完这些话，女神一脚把你踹到了异世界上。\n一阵失重后，你从地上爬起来，看向四周……",
+    options:[
+      {txt:"A：（探索花）（探索草）（探索大树）（探索山洞）（探索哥布林）（到处乱跑）我要用用21世纪现代人类的思维改变世界！", points:{steel:1}},
+      {txt:"B：画大饼这还说啥了？我高低得加入魔王给你们捣捣乱！（于是转身朝着魔王所在地走去）", points:{life:1}},
+      {txt:"C：（紧急翻翻自己身上有没有钱袋）再怎么说，人不能一上来就睡大街吧！", points:{gov:1}},
+      {txt:"D：根据我多年来看轻小说的经验…我的机缘一定就在这附近！（根据套路直奔机缘所在地）", points:{shadow:1}}
+    ]
+  },
+  {
+    q:"15：转生女神向你道歉，并且为你发放了一份新手大礼包。\n现在摆在你面前的有四个选择……",
+    options:[
+      {txt:"A：一支喝了就能拥有超级力量的药剂，成为完美生物打败天下无敌手指日可待。众所周知，在一堆超级机制里面出现了一个劲大，那这个劲大一定有它存在的意义！", points:{shadow:2}},
+      {txt:"B：一把无限子弹且不需要学习使用方法就能自动上手的RPG。桀桀桀，魔王吃我一发现代科技，我会让你知道谁才是魔王！", points:{steel:2}},
+      {txt:"C：一份来自神殿的圣谕，能让你不管在哪个国家或者哪个地盘都会被奉为座上宾。都给我好酒好菜招待上，我可是神的代行人！", points:{gov:2}},
+      {txt:"D：神秘的催眠怀表……等等等等，这个是从哪来的，我们是正经世界！这里不是里番啊！转生女神发出了惊恐的尖叫.jpg", points:{life:2}}
+    ]
+  }
+];
+
+const resultTextMap = {
+  gov:"你向往秩序、安稳与集体的温度。重视规则、责任与共同的安宁，愿意守护大多数人的平和生活，是稳重而心怀共同体的一类人。\n \n我们诚挚邀请您加入秩序政府",
+  shadow:"你更看重个体、本心与隐秘。对世俗标准保持距离，遵从自我的感受，善于观察，拥有属于自己的一套生存逻辑。\n \n我们欢迎你加入暗影行会",
+  steel:"你崇尚理性、进步、真理与实干。相信逻辑与力量，看重发展与客观事实，坚韧果决，追求向前推进世界。\n \n欢迎加入我们钢铁圣所",
+  life:"你拥抱自由、本能、混沌与鲜活。讨厌被束缚，追随冲动与创造力，接纳无序与变化，热烈而不受拘束。\n \n生命织缕欢迎你的加入！"
+};
+
+const formalTitleMap = {
+  gov:"秩序政府",
+  shadow:"暗影行会",
+  steel:"钢铁圣所",
+  life:"生命织缕"
+};
+
+const resultClassMap = {
+  gov:"result-gov",
+  shadow:"result-shadow",
+  steel:"result-steel",
+  life:"result-life"
+};
+const bodyClassMap = {
+  gov:"res-gov",
+  shadow:"res-shadow",
+  steel:"res-steel",
+  life:"res-life"
+};
+
+let currentIdx = 0;
+let typeTimer = null;
+let splashTimer = null;
+
+const container = document.getElementById("quiz-container");
+const resultWrap = document.getElementById("resultWrap");
+const bodyEl = document.body;
+const titleBlock = document.getElementById("titleBlock");
+const resultHeading = document.getElementById("resultHeading");
+const splashWrap = document.getElementById("splashWrap");
+const splashTextEl = document.getElementById("splashText");
+const startBtn = document.getElementById("startBtn");
+const mainWrap = document.getElementById("mainWrap");
+
+// 开幕打字
+function splashType(text, speed=35){
+  let i=0;
+  splashTextEl.innerHTML = "";
+  splashTimer = setInterval(()=>{
+    if(i<text.length){
+      splashTextEl.innerHTML = text.substring(0,i+1)+`<span class="splash-caret"></span>`;
+      i++;
+    }else{
+      clearInterval(splashTimer);
+      splashTimer=null;
+      splashTextEl.innerHTML = text;
+      startBtn.classList.add("show-btn");
+    }
+  },speed);
+}
+
+// 点击开始，淡出开幕，进入答题
+startBtn.onclick = ()=>{
+  if(splashTimer){clearInterval(splashTimer);splashTimer=null;}
+  splashWrap.classList.add("fadeout");
+  setTimeout(()=>{
+    splashWrap.style.display="none";
+    mainWrap.classList.add("show-wrap");
+    renderQuestion();
+  },600);
+};
+
+function typeWriter(element, text, speed = 32){
+  let i = 0;
+  element.innerHTML = "";
+  if(typeTimer){
+    clearInterval(typeTimer);
+    typeTimer = null;
+  }
+  typeTimer = setInterval(()=>{
+    if(i < text.length){
+      element.innerHTML = text.substring(0, i + 1) + `<span class="caret"></span>`;
+      i++;
+    }else{
+      clearInterval(typeTimer);
+      typeTimer = null;
+      element.innerHTML = text;
+    }
+  }, speed);
+}
+
+function renderQuestion(){
+  container.innerHTML = "";
+  const item = questionList[currentIdx];
+  const divQ = document.createElement("div");
+  divQ.className = "question";
+
+  if(item.isBranch){
+    divQ.innerHTML = `
+      <div class="q-text"></div>
+      <button class="opt-btn" id="btnContinue">继续完成后面3道娱乐题目</button>
+      <button class="opt-btn" id="btnSkip">✅ 跳过这3道题，直接查看测试结果</button>
+    `;
+    container.appendChild(divQ);
+    requestAnimationFrame(()=>{
+      divQ.classList.add("active");
+      const qTextEl = divQ.querySelector(".q-text");
+      typeWriter(qTextEl, item.q);
+
+      document.getElementById("btnContinue").onclick = ()=>{
+        if(typeTimer){clearInterval(typeTimer);typeTimer=null;}
+        goNext();
+      };
+      document.getElementById("btnSkip").onclick = ()=>{
+        if(typeTimer){clearInterval(typeTimer);typeTimer=null;}
+        showResult();
+      };
+    });
+    return;
+  }
+
+  // --------重点：删掉了自动生成的q-num自动题号行！！--------
+  divQ.innerHTML = `
+    <div class="q-text"></div>
+  `;
+
+  item.options.forEach(opt=>{
+    const btn = document.createElement("button");
+    btn.className = "opt-btn";
+    btn.innerText = opt.txt;
+    btn.onclick = ()=>{
+      if(typeTimer){
+        clearInterval(typeTimer);
+        typeTimer = null;
+      }
+      if(opt.points.gov) score.gov += opt.points.gov;
+      if(opt.points.shadow) score.shadow += opt.points.shadow;
+      if(opt.points.steel) score.steel += opt.points.steel;
+      if(opt.points.life) score.life += opt.points.life;
+      goNext();
+    };
+    divQ.appendChild(btn);
+  });
+
+  container.appendChild(divQ);
+  requestAnimationFrame(()=>{
+    divQ.classList.add("active");
+    const qTextEl = divQ.querySelector(".q-text");
+    typeWriter(qTextEl, item.q);
+  });
+}
+
+function goNext(){
+  const current = container.querySelector(".question");
+  if(current){
+    current.classList.remove("active");
+  }
+  setTimeout(()=>{
+    currentIdx++;
+    if(currentIdx >= questionList.length){
+      showResult();
+      return;
+    }
+    renderQuestion();
+  }, 220);
+}
+
+function showResult(){
+  container.style.display = "none";
+  resultWrap.style.display = "block";
+  titleBlock.classList.add("hidden-title");
+
+  const arr = [
+    {key:"gov",val:score.gov},
+    {key:"shadow",val:score.shadow},
+    {key:"steel",val:score.steel},
+    {key:"life",val:score.life}
+  ];
+  arr.sort((a,b)=>b.val - a.val);
+  const topKey = arr[0].key;
+
+  resultWrap.className = "result-page";
+  resultWrap.classList.add(resultClassMap[topKey]);
+  bodyEl.className = "";
+  bodyEl.classList.add(bodyClassMap[topKey]);
+
+  resultHeading.innerText = formalTitleMap[topKey];
+  document.getElementById("resultText").innerText = resultTextMap[topKey];
+
+  if(topKey === "life"){
+    addLifeParticles(resultWrap);
+  }
+
+  requestAnimationFrame(()=>{
+    resultWrap.classList.add("show");
+  });
+}
+
+function addLifeParticles(parent){
+  parent.querySelectorAll(".life-particle").forEach(p=>p.remove());
+  for(let i = 0; i < 10; i++){
+    const p = document.createElement("span");
+    p.className = "life-particle";
+    p.style.left = Math.random() * 100 + "%";
+    p.style.top = 40 + Math.random() * 50 + "%";
+    p.style.animationDelay = Math.random() * 2 + "s";
+    p.style.animationDuration = (2 + Math.random() * 1.6) + "s";
+    parent.appendChild(p);
+  }
+}
+
+function restartQuiz(){
+  if(typeTimer){
+    clearInterval(typeTimer);
+    typeTimer = null;
+  }
+  score = {gov:0,shadow:0,steel:0,life:0};
+  currentIdx = 0;
+  resultWrap.classList.remove("show");
+
+  setTimeout(()=>{
+    resultWrap.style.display = "none";
+    resultWrap.className = "result-page";
+    resultWrap.querySelectorAll(".life-particle").forEach(p=>p.remove());
+    bodyEl.className = "";
+    titleBlock.classList.remove("hidden-title");
+    container.style.display = "block";
+    renderQuestion();
+  }, 300);
+}
+
+// 页面加载完成启动开幕打字
+splashType(splashContent);
+</script>
+</body>
+</html>
